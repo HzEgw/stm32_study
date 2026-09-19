@@ -63,6 +63,10 @@
 | 跨系统同步手段 | **git**（W1 建仓库） | Windows 提交 → Linux 拉取；`.gitignore` 排除 `build/ install/ log/` |
 | 只想在 Linux 里"看"笔记 | 只读挂载 NTFS（`/etc/fstab` 加 `ntfs3` 或 `ntfs-3g`，带 `ro`） | 用来看，不要用来编译 |
 
+**GitHub 仓库分工（3 个，2026-09-19 定）**：`stm32_study`（本工作区，含**自研** `ros2_ws_src/uart_bridge`）·
+`ros2_study`（《动手学ROS2》**教程练习** chapt1~10，**非自研**，README 需注明出处）·
+`stm32-ros2-lidar-car`（**比赛作品库**，W5 后建）。详见 `04_Ubuntu侧开工清单.md` §0.1。
+
 Linux 端典型流程：
 ```bash
 cd ~/ros2_ws/src
