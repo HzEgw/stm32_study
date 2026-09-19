@@ -1,0 +1,54 @@
+# ============================================================
+#  STM32F103C8_Workspace  .gitignore
+#  用法: W1 `git init` 之后, 这个文件就开始生效
+# ============================================================
+
+# ---------- Keil / MDK 编译产物 ----------
+Objects/
+Listings/
+DebugConfig/
+RTE/
+*.o
+*.d
+*.crf
+*.dep
+*.axf
+*.hex
+*.bin
+*.map
+*.htm
+*.lnp
+*.lst
+*.bak
+*.scvd
+*.iex
+*.sct
+# Keil 的窗口布局文件(每个人不同, 不要提交)
+*.uvguix.*
+*.uvoptx
+*.uvopt
+
+# ---------- VS Code(保留 .vscode 配置, 因为团队要共用) ----------
+.vscode/ipch/
+.vscode/*.log
+
+# ---------- ROS2 编译产物 ----------
+build/
+install/
+log/
+__pycache__/
+*.pyc
+
+# ---------- 其它 ----------
+*.zip
+*.rar
+*.7z
+Thumbs.db
+desktop.ini
+~$*.docx
+~$*.pptx
+
+# ---------- 说明 ----------
+# Libraries/ (CMSIS + StdPeriph, 每个工程 1.5MB) 建议**提交**,
+# 这样别人 clone 下来就能直接编译; 若嫌仓库大, 改为忽略并在 README 写清补库方法。
+# 千万不要提交: 密码、密钥、token、数据集、示波器截图的大图。

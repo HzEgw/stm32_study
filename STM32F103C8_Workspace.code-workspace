@@ -1,0 +1,73 @@
+{
+    "folders": [
+        {
+            "name": "01 PWM 输出 (标准库版)",
+            "path": "01_PWM_Output"
+        },
+        {
+            "name": "01R PWM 输出 (寄存器版)",
+            "path": "01_PWM_Output_Reg"
+        },
+        {
+            "name": "02 输入捕获 (标准库版)",
+            "path": "02_Input_Capture"
+        },
+        {
+            "name": "02R 输入捕获 (寄存器版)",
+            "path": "02_Input_Capture_Reg"
+        },
+        {
+            "name": "03 编码器 (标准库版)",
+            "path": "03_Encoder"
+        },
+        {
+            "name": "03R 编码器 (寄存器版)",
+            "path": "03_Encoder_Reg"
+        },
+        {
+            "name": "04 串口通信 (标准库版)",
+            "path": "04_UART_Bluetooth"
+        },
+        {
+            "name": "04R 串口通信 (寄存器版)",
+            "path": "04_UART_Bluetooth_Reg"
+        },
+        {
+            "name": "05 I2C+MPU6050 (标准库版)",
+            "path": "05_I2C_MPU6050"
+        },
+        {
+            "name": "05R I2C+MPU6050 (寄存器版)",
+            "path": "05_I2C_MPU6050_Reg"
+        },
+        {
+            "name": "06 套件到货验收 (Kit Check)",
+            "path": "06_Kit_Check"
+        },
+        {
+            "name": "ROS2 源码 (在 Linux 编译)",
+            "path": "ros2_ws_src"
+        },
+        {
+            "name": "笔记: C/C++ 语言补充",
+            "path": "学习C_C++语言补充"
+        },
+        {
+            "name": "成长路线 (8个月计划)",
+            "path": "成长路线"
+        },
+        {
+            "name": "电机测速(旧工程)",
+            "path": "D:/STM32F103C8_MotorSpeed"
+        }
+    ],
+    "settings": {
+        "files.encoding": "utf8",
+        "C_Cpp.default.intelliSenseMode": "windows-gcc-arm",
+        "C_Cpp.default.cStandard": "c99",
+        "C_Cpp.default.defines": [
+            "USE_STDPERIPH_DRIVER",
+            "STM32F10X_MD"
+        ]
+    }
+}
