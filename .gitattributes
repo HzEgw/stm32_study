@@ -1,0 +1,67 @@
+# ============================================================
+#  .gitattributes  —— 换行符与二进制规则（Windows + Linux 双系统必配）
+#  背景：本工作区 Windows 写代码（Keil/VS Code）+ Linux 编译 ROS2（colcon），
+#        用 git 同步。若不统一换行符，Linux 侧会出现：
+#          /usr/bin/env: 'python3\r': No such file or directory
+#          CMake Error: ... Parse error. Function missing ending ")"
+#        根因就是 CRLF 被带进了仓库。
+#  规则：**仓库里一律存 LF**；Windows 工作区照旧能用（Keil/VS Code 都认 LF）。
+#  改完执行一次： git add --renormalize . && git commit -m "chore: 统一换行符"
+# ============================================================
+
+# ---- 总开关：自动识别文本文件并归一化为 LF 入库 ----
+* text=auto
+
+# ---- 源码 / 脚本 / 文档：按文本处理（入库 LF）----
+*.c        text
+*.h        text
+*.cpp      text
+*.hpp      text
+*.cc       text
+*.py       text
+*.md       text
+*.txt      text
+*.json     text
+*.xml      text
+*.yml      text
+*.yaml     text
+*.csv      text
+*.cmake    text
+*.srv      text
+*.msg      text
+*.urdf     text
+*.xacro    text
+CMakeLists.txt  text
+package.xml     text
+
+# 给 Linux 直接执行的脚本：**强制 LF**（CRLF 会导致 /usr/bin/env 报错）
+*.sh       text eol=lf
+*.bash     text eol=lf
+*.launch.py text eol=lf
+
+# ---- 二进制：禁止任何换行符转换，否则文件损坏 ----
+*.axf      binary
+*.hex      binary
+*.bin      binary
+*.o        binary
+*.a        binary
+*.lib      binary
+*.elf      binary
+*.map      binary
+*.exe      binary
+*.dll      binary
+*.zip      binary
+*.rar      binary
+*.7z       binary
+*.png      binary
+*.jpg      binary
+*.jpeg     binary
+*.gif      binary
+*.bmp      binary
+*.pdf      binary
+*.docx     binary
+*.pptx     binary
+*.xlsx     binary
+*.uvprojx  binary
+*.uvoptx   binary
+*.uvguix*  binary
