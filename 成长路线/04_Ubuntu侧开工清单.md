@@ -31,6 +31,59 @@
 
 ---
 
+## 0.2 三个 Linux 环境怎么分工（**"双系统切换太麻烦"的解法**）
+
+> **痛点**：双系统每次切换要**重启 1~2 分钟**，一天切两趟很折磨。
+> **解法**：**日常用 WSL2（零重启），重活才进双系统。**
+
+| 环境 | 什么时候用 | 能干什么 | 局限 |
+|---|---|---|---|
+| **WSL2 + Ubuntu 22.04**（就在 Windows 里，**零重启**） | **工作日 2h 的"ROS2 日"**、碎片时间 | 命令行全套、`colcon build`、写节点/包、git、`ros2 topic/node/param` 练习 | 真 USB 串口要 `usbipd-win` 转发；GPU 加速有限 |
+| **双系统 Ubuntu 22.04** | **周六攻坚日 / 周日产出日**（大块时间） | `rviz2` / Gazebo 仿真、真串口/CAN、性能活 | 切换要重启 |
+| 树莓派 / 车载机（11 月后） | W5 之后实车联调 | 真机跑 ROS2 + 真硬件 | — |
+
+### 装 WSL2（一次性，约 10 分钟；**不需要重启**，因为 WSL 已就绪）
+
+```powershell
+# Windows PowerShell（管理员）
+wsl --list --online              # 看看有哪些发行版
+wsl --install -d Ubuntu-22.04    # 安装（会要你设一个 Linux 用户名/密码，随便设，记牢）
+wsl                              # 装完直接进
+```
+> 若下载慢：重试，或 `wsl --install -d Ubuntu-22.04 --web-download`。
+
+```bash
+# 在 WSL 里：装 ROS2 Humble（走国内源，免梯子）
+wget http://fishros.com/install -O fishros && bash fishros    # 菜单：1 安装 ROS2 → humble → 换源
+```
+
+```bash
+# 在 WSL 里：git + SSH（**再配一把钥**，Title 写 `WSL-Ubuntu`）
+git config --global user.name "HzEgw"
+git config --global user.email "1765377619@qq.com"
+ssh-keygen -t ed25519 -C "1765377619@qq.com"     # 三次回车（密码留空）
+cat ~/.ssh/id_ed25519.pub                        # → 粘到 GitHub → New SSH key
+mkdir -p ~/repos && cd ~/repos && git clone git@github.com:HzEgw/stm32_study.git
+```
+
+### 两边的边界（**这三条很重要**）
+
+1. **不共享 `~/ros2_ws`**：WSL 和双系统各自独立 `colcon build`（编译产物不跨系统）。
+2. **共享的是 git 仓库**：同一份源码，靠 `git pull/push` 同步。
+3. **切系统前的固定动作**：
+   ```bash
+   # Windows 侧（重启前）：
+   git status ; git add . ; git commit -m "..." ; git push     # ← 别带着未提交改动重启
+   # Linux 侧（进系统后第一件事）：
+   cd ~/repos/stm32_study && git pull
+   ```
+
+> **主题日怎么排**：周二/周四 ROS2 日（工作日 2h）→ **WSL 里做**；周六/周日（各 5h）→
+> 需要 GUI（rviz2/Gazebo）或真硬件时，**重启进双系统一次，批量做完**。
+
+---
+
+
 ## 1. 一次性配置（约 5 分钟）
 
 ### 1.1 git 身份
