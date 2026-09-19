@@ -31,10 +31,12 @@
 
 ---
 
-## 0.2 三个 Linux 环境怎么分工（**"双系统切换太麻烦"的解法**）
+## 0.2 用哪个 Linux 环境：**双系统为主**（2026-09-19 定案）
 
-> **痛点**：双系统每次切换要**重启 1~2 分钟**，一天切两趟很折磨。
-> **解法**：**日常用 WSL2（零重启），重活才进双系统。**
+> **决定**：**只用双系统 Ubuntu**（WSL2 不采用）。
+> **理由**：本项目后面要接**真串口 / 雷达 / 树莓派 / Gazebo GPU** —— 这些在 WSL 里都要额外折腾（USB 转发、`/mnt/d` 编译慢、GPU 受限）；
+> 双系统是"一次重启换全套真实环境"，更省心。
+> **代价**：切换要重启 1~2 分钟 → 所以核心变成 **减少切换次数**（见 §0.3）。
 
 | 环境 | 什么时候用 | 能干什么 | 局限 |
 |---|---|---|---|
@@ -42,7 +44,9 @@
 | **双系统 Ubuntu 22.04** | **周六攻坚日 / 周日产出日**（大块时间） | `rviz2` / Gazebo 仿真、真串口/CAN、性能活 | 切换要重启 |
 | 树莓派 / 车载机（11 月后） | W5 之后实车联调 | 真机跑 ROS2 + 真硬件 | — |
 
-### 装 WSL2（一次性，约 10 分钟；**不需要重启**，因为 WSL 已就绪）
+### WSL2 方案（**本机已决定不采用**，仅留档备查）
+
+> ⚠️ 哪天不方便重启（例如出门只带笔记本），可按下面步骤应急；**但日常主线是双系统**。
 
 ```powershell
 # Windows PowerShell（管理员）
@@ -78,8 +82,35 @@ mkdir -p ~/repos && cd ~/repos && git clone git@github.com:HzEgw/stm32_study.git
    cd ~/repos/stm32_study && git pull
    ```
 
-> **主题日怎么排**：周二/周四 ROS2 日（工作日 2h）→ **WSL 里做**；周六/周日（各 5h）→
-> 需要 GUI（rviz2/Gazebo）或真硬件时，**重启进双系统一次，批量做完**。
+### 0.3 双系统下"减少重启"的排法（**比装 WSL 更重要**）
+
+| 规则 | 说明 |
+|---|---|
+| ① **只在 Linux 侧任务 ≥1h 时才切换** | 30 分钟的碎片活不值得重启（来回 ~4 分钟 + 打断思路） |
+| ② **进系统前先在 Windows 写好"Linux 待办清单"** | 免得进去发呆；模板见下 |
+| ③ **进去就批量做完 + 立刻 `git push`** | 别在 Linux 里写文档/查资料（那些回 Windows 做） |
+| ④ **Windows 侧只做"Windows 才能做"的** | Keil 编译、固件代码、ST-Link 下载、文档、看教程、规划 |
+
+**任务归属（照着分，切换次数自然就少了）**：
+
+| 只在 Windows 做 | 只在 Linux 做 | 两边都能做 → **一律在 Windows 做** |
+|---|---|---|
+| Keil 编译/下载、ST-Link、固件代码、计划文档、看教程、写报告 | `colcon build`、跑 ROS2 节点、`ros2 bag`、rviz2 / Gazebo、（将来）真串口与实车联调 | 读/改源码、git、查资料 |
+
+**Linux 待办清单模板**（进 Ubuntu 前在 Windows 填好，进去照抄）：
+
+```markdown
+# Linux 待办（2026-09-__）
+- [ ] cd ~/repos/stm32_study && git pull
+- [ ] cd ~/ros2_ws && colcon build --symlink-install --packages-select uart_bridge
+- [ ] source install/setup.bash && ros2 run uart_bridge uart_bridge_node
+- [ ] ros2 topic list | grep mcu              # 验收点
+- [ ] （需要录数据时）ros2 bag record -o ~/bags/xxx /mcu/frame
+- [ ] git status && git add . && git commit -m "..." && git push    ← 收工必做
+```
+
+> **时间盒怎么排**：周二/周四 ROS2 日（2h）→ **任务不足 1h 就攒到周末**；
+> 周六/周日（各 5h）→ **一次进 Ubuntu 把大活批量做完**。这样一周大约只重启 **1~2 次**。
 
 ---
 
