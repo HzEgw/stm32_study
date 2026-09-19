@@ -85,6 +85,9 @@ source install/setup.bash
 5. 验证优先用：Keil Watch 变量 + 万用表/示波器 + 把信息编码到 PWM 输出；
 6. 所有代码进 git（W1 建仓库），参数放配置文件，不硬编码；
 7. 引脚约定：避开 SWD（PA13/PA14）与串口（PA9/PA10）。
+8. **换行符**：仓库统一存 **LF**（根目录 `.gitattributes` 已配好），Windows 工作区照旧 CRLF ——
+   **不用再手动设 `autocrlf`**；改过 `.gitattributes` 后跑一次 `git add --renormalize .` 即可。
+   目的：Linux 侧 `colcon build` / `.sh` 脚本不会因 CRLF 报 `bad interpreter` 之类的怪错。
 
 ## 5. 当前进度（**每次做完就更新这一节**）
 
