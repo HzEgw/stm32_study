@@ -103,11 +103,13 @@ source install/setup.bash
 ```powershell
 git status ; git add . ; git commit -m "feat: xxx" ; git push
 ```
-⚠️ **本机网络注意**：`github.com:443` 被墙（浏览器走系统代理所以正常），git 已按 `05_git速查` §4.1 配好本地代理。
-若某天关了代理：`git push` 会超时 → 开代理/TUN 模式，或撤销配置：
+⚠️ **本机网络注意（别搞反）**：`github.com:443` 被墙（浏览器走系统代理所以正常），git 已按 `05_git速查` §4.1 配好本地代理 →
+**代理软件请保持开启，git 才能连通**（这是"常态"，不是"待办"）。
+只有在「你决定以后不再用代理」时，才需要撤销下面的配置（否则 git 会一直去找没人监听的本地端口）：
 ```powershell
 git config --global --unset http.proxy ; git config --global --unset https.proxy
 ```
+更省心的替代（可选，不急）：客户端开 **TUN / 虚拟网卡模式**（让全系统走代理），再执行上面两行 unset —— 以后 `pip`/`rosdep`/Keil 下载都自动受益。
 > **仓库分工**：`stm32_study` = **学习工作区**（现在这个：练习工程 + 成长路线文档）；
 > `stm32-ros2-lidar-car` = **比赛作品库**（W5 之后另建，只放 F407 固件 + ROS2 包，避免和练习代码混在一起）。
 **09-19（周六）晚热身已完成**：`git init` + 首次提交 **`484d3d0`**（752 文件；身份已改为 `HzEgw <1765377619@qq.com>`）—— 不计入 KPI，但原排在 09-20 的第一件事**提前一天做完了**。

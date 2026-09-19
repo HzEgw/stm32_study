@@ -125,6 +125,31 @@ Get-ItemProperty 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Internet Setti
    > ✅ **2026-09-19 实盘：本机用此法一次成功** —— 配好后 `git push` 打通，紧接着 GCM 弹出浏览器授权页（显示 `Authentication Succeeded`）即完成认领。
 3. **换网络**：手机热点（最土最管用，绕开校园网/运营商的端口策略）
 
+**⚠️ 代理关闭后容易踩的两个坑（2026-09-19 记录）**：
+
+1. **Windows 系统代理设置会残留** —— 客户端异常退出时，`ProxyEnable=1` + `127.0.0.1:<端口>` 还留着，
+   而那个端口已经没人监听 → 表现是「**关了代理，浏览器/微信全都上不了网**」。清理：
+   ```powershell
+   Set-ItemProperty 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Internet Settings' -Name ProxyEnable -Value 0
+   # 某些程序要重启才生效
+   ```
+2. **git 的 `http.proxy` 配置不会自动消失** —— 它写在 `~/.gitconfig` 里，关掉客户端后 git 会报
+   `Failed to connect to 127.0.0.1 port <端口>`。两条路：开回代理，或撤销配置：
+   ```powershell
+   git config --global --unset http.proxy ; git config --global --unset https.proxy
+   ```
+
+**✅ 不想依赖代理？改用 SSH（本机实测 `github.com:22`、`ssh.github.com:443` 均通）**
+配好密钥后 git 全程**不需要代理**，走标准 SSH 到 GitHub 官方地址 —— 和"用浏览器访问 GitHub"一样是正常网络行为：
+```bash
+ssh-keygen -t ed25519 -C "你的邮箱"     # 一路回车（密码可留空）
+# 把 ~/.ssh/id_ed25519.pub 内容粘贴到 GitHub → Settings → SSH and GPG keys → New SSH key
+ssh -T git@github.com                   # 看到 Hi <用户名>! 即成功
+git remote set-url origin git@github.com:HzEgw/stm32_study.git
+git config --global --unset http.proxy ; git config --global --unset https.proxy
+git push
+```
+
 ## 5. `.gitignore` 模板
 
 **STM32 / Keil 工程**
