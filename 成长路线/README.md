@@ -46,6 +46,7 @@
 | **鱼香小车硬件清点表（参数/线序/实测步骤）** | `成长路线\01_FishBot硬件清点表.md` |
 | **官方固件参数 & STM32 移植映射（权威出处 + 教程章节对照）** | `成长路线\02_FishBot官方固件参数与STM32移植映射.md` |
 | **周主题日与学习指引（每日节奏 / ROS2 恢复期 / 打卡表）** | `成长路线\03_周主题日与学习指引.md` |
+| **Ubuntu 侧开工清单（SSH + 国内镜像源 + 编译 uart_bridge + 报错表）** | `成长路线\04_Ubuntu侧开工清单.md` |
 | Keil 库（不随工程） | `D:\Keil\ARM\PACK\Keil\STM32F1xx_DFP\2.2.0\`；CMSIS：`D:\Keil\ARM\PACK\ARM\CMSIS\5.0.1\CMSIS\Include` |
 | VS Code 全局 IntelliSense | 用户设置里的 `C_Cpp.default.*`（已配好，指向上面两个 Keil 路径；标准库工程用 `USE_STDPERIPH_DRIVER,STM32F10X_MD`，寄存器工程只 define `STM32F10X_MD`） |
 

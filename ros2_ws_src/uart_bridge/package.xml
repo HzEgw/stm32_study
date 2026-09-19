@@ -8,7 +8,7 @@
     对应 STM32 工程: 04_UART_Bluetooth / 04_UART_Bluetooth_Reg
     这是 micro-ROS 的"前身"——先手写一遍桥, 再用 micro-ROS 替代, 就彻底懂"桥"了。
   </description>
-  <maintainer email="you@example.com">your_name</maintainer>
+  <maintainer email="1765377619@qq.com">HzEgw</maintainer>
   <license>MIT</license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
