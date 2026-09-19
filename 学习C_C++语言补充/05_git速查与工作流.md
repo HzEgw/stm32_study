@@ -83,6 +83,47 @@ git branch -d feat/uart-ringbuf        # 删掉本地分支
 | 想撤销工作区改动 | — | `git restore 文件名`（**不可恢复，慎用**） |
 | 不小心 commit 了密码/密钥 | — | 改文件 + 改密码；历史里的要 `git filter-repo` 清（麻烦，所以**不要提交密钥**） |
 | 大文件（>100MB）推不上去 | GitHub 限制 | 别把 `.uvguix`/`Objects/`/数据集 提交；大文件用 Git LFS 或网盘 |
+| **`Failed to connect to github.com:443 after 21155 ms: Could not connect to server`** | **网络层把 `github.com:443` 挡住了**（浏览器能开 GitHub 是因为浏览器走了系统代理，git 默认直连） | 见 **§4.1 网络排障**：首选**改走 SSH**（实测 `github.com:22`、`ssh.github.com:443` 可通） |
+
+### 4.1 网络排障（2026-09-19 实盘记录：`github.com:443` 连不上）
+
+**症状**：`git push` 报 `Failed to connect to github.com:443 ... Could not connect to server`（等了 21 秒超时）；
+但**浏览器能正常打开 GitHub** —— 因为它走了系统代理（`ProxyEnable=1`），而 **git 默认不走系统代理**。
+
+**60 秒定位（复制到 PowerShell 直接跑）**：
+```powershell
+Resolve-DnsName github.com -Type A | Select-Object IPAddress            # ① DNS 是否被污染
+Test-NetConnection github.com     -Port 443 -InformationLevel Quiet     # ② HTTPS 端口
+Test-NetConnection github.com     -Port 22  -InformationLevel Quiet     # ③ SSH 标准端口
+Test-NetConnection ssh.github.com -Port 443 -InformationLevel Quiet     # ④ SSH over 443
+Get-ItemProperty 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Internet Settings' |
+  Select-Object ProxyEnable, ProxyServer                                # ⑤ 系统代理是谁
+```
+
+**三种解法（按实测成功率排序）**：
+
+1. **改走 SSH（最稳）** —— ②/③/④ 有一条通就能用
+   ```bash
+   # 按 §1 生成密钥并加到 GitHub，然后：
+   git remote set-url origin git@github.com:HzEgw/stm32_study.git
+   git push -u origin main
+   # 若 22 端口不通但 443 通，在 ~/.ssh/config 里加：
+   #   Host github.com
+   #     HostName ssh.github.com
+   #     Port 443
+   #     User git
+   ```
+2. **让 git 复用系统代理**（若 ⑤ 显示有代理软件在跑；**端口以你客户端里的"HTTP 端口"为准**，下图里的只是举例）
+   ```bash
+   git config --global http.proxy  http://127.0.0.1:<你的HTTP端口>
+   git config --global https.proxy http://127.0.0.1:<你的HTTP端口>
+   git push -u origin main
+   # 想撤销：
+   git config --global --unset http.proxy ; git config --global --unset https.proxy
+   ```
+   > ⚠️ 本文档可能进**公开**仓库 —— 所以只写"本机 HTTP 代理端口"，**不要**写代理软件名称、订阅地址、节点信息。
+   > ✅ **2026-09-19 实盘：本机用此法一次成功** —— 配好后 `git push` 打通，紧接着 GCM 弹出浏览器授权页（显示 `Authentication Succeeded`）即完成认领。
+3. **换网络**：手机热点（最土最管用，绕开校园网/运营商的端口策略）
 
 ## 5. `.gitignore` 模板
 
