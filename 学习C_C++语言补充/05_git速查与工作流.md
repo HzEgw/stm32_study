@@ -125,11 +125,14 @@ git init
 # 建 .gitignore（把上面 STM32 部分粘进去）
 git add .
 git commit -m "chore: 初始化工作区(工程 + 笔记 + 计划)"
-# 在 GitHub 新建空仓库 stm32-ros2-lidar-car, 然后:
-git remote add origin git@github.com:你的用户名/stm32-ros2-lidar-car.git
+# 在 GitHub 新建空仓库（学习工作区用 stm32_study）, 然后:
+git remote add origin https://github.com/HzEgw/stm32_study.git
 git push -u origin main
 ```
 > 建议先建**私有**仓库，等选题书定稿、比赛材料准备好再公开（见计划第 8 节待确认第 2 条）。
+> ⚠️ **实况（2026-09-19）**：`HzEgw/stm32_study` 建成了**公开**库 —— 改法：
+> 仓库页 → **Settings** → 拉到底 **Danger Zone** → **Change repository visibility → Make private**（输入仓库名确认）。
+> 另外：**提交邮箱会随提交公开**，所以要么用 noreply 邮箱，要么把仓库设为私有。
 
 ## 8. 进阶（以后需要再看）
 
