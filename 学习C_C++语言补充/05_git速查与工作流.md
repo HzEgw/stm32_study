@@ -150,6 +150,23 @@ git config --global --unset http.proxy ; git config --global --unset https.proxy
 git push
 ```
 
+**⚠️ Windows 上配 SSH 密钥的三个坑（2026-09-19 实盘，血泪教训）**：
+
+| 症状 | 真正原因 | 解决 |
+|---|---|---|
+| `Enter passphrase for key ...` 之后紧跟 `Permission denied (publickey)` | 私钥被设成了**带密码短语**（`ssh -v` 能看到 `Server accepts key` 后**立刻**失败 = 客户端签不出名） | 清掉密码：`ssh-keygen -p -f "$env:USERPROFILE\.ssh\id_ed25519"` → `Enter old passphrase:` 输旧密码 → **两次回车** |
+| `ssh-keygen -N ''` 报 `Too many arguments`；或密码莫名变成"两个引号" | **PowerShell 传"空字符串参数"会走样**（`-N ''` 被吞、`-N '""'` 变成字面两个引号）—— 那些写法是给 **cmd/Git Bash** 的，不是给 PowerShell 的 | ❌ **不要用 `-N`**：让 ssh-keygen **交互式提问**，`Enter passphrase` 处直接回车；或改用 **Git Bash**（那里 `-N ''` 才真是空） |
+| `git push` 弹密码框（路径显示 `/c/Users/...`） | git 用的是 **Git 自带的 ssh**（与 Windows 自带 OpenSSH 读同一个密钥文件） | 同上：把密码短语清掉即可，两者立刻都免密 |
+
+**排障三连**（快速定位卡在"网络 / 密钥 / 密码"哪一层）：
+```bash
+ssh -v -T git@github.com                       # 看 Offering public key → Server accepts key → 是否有签名后续
+ssh-keygen -l -f ~/.ssh/id_ed25519.pub         # 指纹，应与 GitHub 页面显示完全一致
+ssh -T -o BatchMode=yes git@github.com         # BatchMode=不许弹提示；卡住或失败即说明还需要密码
+```
+> ✅ **本机最终状态**：`origin` = SSH、密钥**无密码**、`http.proxy/https.proxy` 已清空 ——
+> 实测“**不许弹提示 + 无代理 + 无密码**”下 `git ls-remote` 直接成功。
+
 ## 5. `.gitignore` 模板
 
 **STM32 / Keil 工程**
