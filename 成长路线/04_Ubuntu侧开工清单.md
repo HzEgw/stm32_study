@@ -40,7 +40,7 @@
 
 | 环境 | 什么时候用 | 能干什么 | 局限 |
 |---|---|---|---|
-| **WSL2 + Ubuntu 22.04**（就在 Windows 里，**零重启**） | **工作日 2h 的"ROS2 日"**、碎片时间 | 命令行全套、`colcon build`、写节点/包、git、`ros2 topic/node/param` 练习 | 真 USB 串口要 `usbipd-win` 转发；GPU 加速有限 |
+| **WSL2 + Ubuntu 22.04**（就在 Windows 里，**零重启**） | **ROS2 日（2.5h）**、碎片时间 | 命令行全套、`colcon build`、写节点/包、git、`ros2 topic/node/param` 练习 | 真 USB 串口要 `usbipd-win` 转发；GPU 加速有限 |
 | **双系统 Ubuntu 22.04** | **周六攻坚日 / 周日产出日**（大块时间） | `rviz2` / Gazebo 仿真、真串口/CAN、性能活 | 切换要重启 |
 | 树莓派 / 车载机（**10 月内购买**，见 `00` §11 P1） | W13 之后实车联调 | 真机跑 ROS2 + 真硬件 | — |
 
@@ -109,7 +109,7 @@ mkdir -p ~/repos && cd ~/repos && git clone git@github.com:HzEgw/stm32_study.git
 - [ ] git status && git add . && git commit -m "..." && git push    ← 收工必做
 ```
 
-> **时间盒怎么排**：周二/周四 ROS2 日（2h）→ **任务不足 1h 就攒到周末**；
+> **时间盒怎么排**：周二/周四 ROS2 日（**周二 2.5h / 周四 3h**）→ **任务不足 1h 就攒到周末**；
 > 周六/周日（各 5h）→ **一次进 Ubuntu 把大活批量做完**。这样一周大约只重启 **1~2 次**。
 
 ---
