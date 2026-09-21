@@ -89,7 +89,7 @@ HARDWARE/pwm.c   驱动实现
   ├─ PWM_DeadTimeFromNs()   纳秒 → DTG(按 RM0008 四段公式)
   ├─ PWM_Init() / PWM_SetFreq() / PWM_SetDuty() / PWM_GetDuty()
   └─ PWM_AdvInit() / PWM_AdvSetDuty() / PWM_AdvGetDeadTimeNs() / PWM_AdvEnable()
-USER/main.c      初始化 + 呼吸演示 + 观察变量
+USER/main.c      初始化 + 呼
 USER/stm32f10x_it.c  本工程不用中断, 只保留内核异常空实现
 ```
 
