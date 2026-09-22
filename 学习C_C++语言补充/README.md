@@ -37,6 +37,19 @@
 | `09_内存分配到底怎么回事_栈堆与new.md` | **把三件事彻底分开**：内存位置（栈/堆/静态，实测地址落在哪个段）/ 所有权（引用计数）/ 分配器（`new` 的真实行为：chunk 元数据、对齐、块间不连续）；`make_shared` **1 次**分配 vs `shared_ptr(new T)` **2 次**（重载 `operator new` 实测）；**"把智能指针放到堆上"= 泄漏**（实测构造 +1 / 析构 +0） | README 里那段关于"内存生成"的自我纠缠：为什么不能把临时指针"变成堆区指针"、两个智能指针会不会多占对象、"new 的内存是连续的"到底对不对 |
 | `10_对象包含关系与方法里new出来的内存归谁.md` | **对象的"包含"vs"引用"**：基类子对象与成员**内嵌**在同一块内存（实测偏移 0/32/64/72，`sizeof=88`）；**方法是代码、不占对象内存**；方法里 `new` = **另开一块独立内存**（堆里再开堆合法，但新块**不属于**调用者）；"即将回传的临时智能指针"**住在栈上**（实测 `0x7ffc…[stack]`，且工厂返回地址 == 调用方变量地址）；同一对象里 `shared_ptr` 成员 vs 裸指针成员的**两种结局**（实测一个死、一个漏） | 把问题问到了最精确的一句："堆区 a 调方法，方法里 `new`，那这块内存还属于 a 吗？node 销毁后 publish 还在吗？" |
 | `11_MCU上为什么怕malloc与new_从静态数组堆到FreeRTOS堆方案.md` | **MCU 版分配器**：PC 的堆能长大 vs MCU 的堆是**固定静态数组**（`ucHeap[]` + `configTOTAL_HEAP_SIZE`）→ **碎片化 = 分配失败**（实测 6 组：含**连 `heap_4` 合并也救不了的"夹心"碎片**）；FreeRTOS `heap_1~5` 对照表；为什么"时间不确定"比"失败"更可怕；固件正解：静态分配 / 对象池 / 环形缓冲 / `xTaskCreateStatic`；监控 `xPortGetMinimumEverFreeHeapSize` | `09` 写完"PC 分配器"后自然要问："STM32 上能不能也这么 `new`？" —— 直接接 W2 的 UART 环形缓冲与 W7 的 FreeRTOS |
+| `12_STL容器_map与unordered_map_哈希表.md` | **读源码前的必备词汇**：`map`（红黑树·有序·`O(log n)`）vs `unordered_map`（哈希表·无序·平均 `O(1)`）；哈希表四步（hash→桶→冲突→rehash）；`operator[]`/`at`/`try_emplace` 的区别（**实测 `m[key]` 会凭空插入**）；rehash 导致迭代器全失效；rclcpp 实例：`client.hpp:826-831` 的 `pending_requests_` | 2026-09-22 读 rclcpp 源码卡壳："**我对于哈希表和 map 其实不是很熟悉，我推测这也是我没有很快看明白源码的原因**" |
+
+---
+
+## 语言补丁队列（**读源码卡壳 → 按需插入到 ROS2 日，每次 20 分钟**）
+
+> 来源：2026-09-22 提出。**语言类**问题不占 A 线时间，插在周二/周四 ROS2 日的开头。
+
+| 主题 | 触发场景（真实卡点） | 优先级 | 状态 |
+|---|---|:---:|---|
+| **STL 容器**（`map` / `unordered_map` / `vector` / 迭代器失效） | 读 `rclcpp/client.hpp` 的 `pending_requests_` 看不懂（`unordered_map` + `try_emplace`） | ⭐⭐⭐ | ✅ 已写 `12`（**待我复述认领**） |
+| **模板 / 泛型初识**（`template<typename MessageT, typename AllocatorT...>`） | 读 rclcpp 头文件里的长模板签名 | ⭐⭐ | ⬜ 待写 |
+| **异常与错误处理**（`throw_from_rcl_error`、`rcl_get_error_string`、`RCL_RET_OK`） | 读 rclcpp 的错误分支 | ⭐ | ⬜ 待写 |
 
 ## 怎么用这份笔记
 
