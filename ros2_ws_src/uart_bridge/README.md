@@ -63,6 +63,29 @@ ros2 topic info /mcu/frame -v
 - `ros2 topic echo /mcu/counter` 每 100ms 打印一次递增的数值 ✔
 - `ros2 topic pub /mcu/tx ...` 后能在 `/mcu/frame` 看到回显 ✔
 
+### 2.1 没有硬件也能测：假数据合流（`socat`，2026-09-23 补）
+
+**不需要 STM32、不需要 USB-TTL**：在本机造一对**互相对通的虚拟串口**，一头给桥、一头自己灌字节：
+
+```bash
+sudo apt install -y socat
+socat -d -d pty,raw,echo=0 pty,raw,echo=0     # 终端 A：记下打印的两个 /dev/pts/N（保持不关）
+```
+```bash
+# 终端 B（先 socat 后起桥）：让桥去开"另一头"
+ros2 run uart_bridge uart_bridge_node --ros-args -p port:=/dev/pts/6
+# 终端 C：ros2 topic echo /mcu/frame
+# 终端 D：往"你这一头"灌一帧 —— AA 55 | 02 | 00 07 | 09
+#         (LEN=2，SUM=(2+0+7)&0xFF=0x09)
+printf '\xAA\x55\x02\x00\x07\x09' > /dev/pts/5
+```
+→ `/mcu/frame` 出 `data: [0, 7]`、`/mcu/counter` 出 `data: 7` = **桥通**；
+→ 故意写错 SUM（`...\x08`）应看到**话题不动 + 日志"校验错"+1**。
+
+> **用途**：W2 还没接 MCU 时，先证明"**协议 + 桥**"这一段是对的 —— 这样 W6 接上真硬件时，出问题必定在**硬件/线路**，而不在协议。
+> ⚠️ `socat` 那个终端**不能关**（关了对端设备消失）；`/dev/pts/N` 每次重建都会变。
+> 双系统（Windows Keil + Ubuntu ROS2）下的串口归属与切换流程见 `成长路线\04_Ubuntu侧开工清单.md` **§3.1**。
+
 ## 3. 协议（与 STM32 侧完全一致）
 
 ```

@@ -235,6 +235,69 @@ ros2 run uart_bridge uart_bridge_node
 > 为什么用软链接而不是把整仓克隆进 `src/`：仓库里还有 11 个 Keil 工程，colcon 会白扫一遍；
 > 软链接只把**真正的 ROS2 包**接进来，干净且省时间。
 
+### 3.1 双系统下"串口"到底在哪边？（2026-09-23 补 · 回答"可是我是双系统啊"）
+
+> **一句话**：**串口永远属于"正在跑 ROS2 的那个系统"= Ubuntu**。
+> `socat` 本身就是 Linux 工具（Windows 上根本没有），所以"假数据合流"**本来就只在 Ubuntu 里做** ——
+> **不需要 STM32、不需要 Keil、不需要动 Windows**。→ **双系统不构成任何障碍。**
+
+**① 设备名是"每系统一套"**（同一根 USB-TTL，换个系统就换个名字）：
+
+| 系统 | 名字 | 要点 |
+|---|---|---|
+| **Ubuntu** | `/dev/ttyUSB0`（CH340/CP2102 类）· `/dev/ttyACM0`（ST-Link 虚拟串口） | 用户须在 **`dialout`** 组：`sudo usermod -aG dialout $USER` → **重新登录**才生效 |
+| Windows | `COM3` / `COM5`（设备管理器里看） | Keil 下载/串口助手用的就是它 |
+
+→ `uart_bridge` 的 **`port` 参数只填 Ubuntu 下的名字**（写 `COM3` 对它毫无意义）；
+→ 双系统**同一时刻只有一个系统在跑** → **不存在"两个系统抢串口"**。
+
+**② 假数据合流（4 个终端 · 全程 Ubuntu · 约 5 分钟 · 不需要任何硬件）**
+
+```bash
+sudo apt install -y socat                    # 一次性
+
+# 终端 A：造一对虚拟串口（互相对通），保持不关
+socat -d -d pty,raw,echo=0 pty,raw,echo=0
+#   ↑ 它会打印两行 /dev/pts/N（例：/dev/pts/5 与 /dev/pts/6）→ 下面按这个改
+```
+```bash
+# 终端 B：让桥去开"另一头"（顺序：先 socat，再起桥，最省事）
+source ~/ros2_ws/install/setup.bash
+ros2 run uart_bridge uart_bridge_node --ros-args -p port:=/dev/pts/6 -p baud:=115200
+#   日志应出现：串口已打开: /dev/pts/6 @ 115200 8N1
+```
+```bash
+# 终端 C：看话题
+ros2 topic echo /mcu/frame
+ros2 topic echo /mcu/counter
+```
+```bash
+# 终端 D：往"你这一头"灌一帧【合法】数据
+#   帧格式：0xAA 0x55 | LEN | PAYLOAD[LEN] | SUM，SUM=(LEN+ΣPAYLOAD)&0xFF
+#   取 payload = 00 07 → LEN=0x02，SUM=(0x02+0x00+0x07)&0xFF=0x09
+printf '\xAA\x55\x02\x00\x07\x09' > /dev/pts/5
+```
+
+**验收（这就是"桥通了"的证据）**：
+- `/mcu/frame` 打印 `data: [0, 7]`
+- `/mcu/counter` 打印 `data: 7`
+- **反证**：故意把 SUM 写错（`printf '\xAA\x55\x02\x00\x07\x08'`）→ **话题不动**，桥的日志里"校验错"计数 +1
+
+> ⚠️ **两个坑**：① `socat` 那个终端**不能关**（一关，两个 `/dev/pts/N` 就消失）；② `openPort()` 在节点**构造时**就调用（源码），所以**先起 `socat`、再起桥** —— 顺序倒了会看到"打开串口失败"，重启桥即可（源码里有 `retry_` 重试计数，但别赌它）。
+> 📌 这是 **W2 的加餐**（`00` §16.8 v1.23 ②）：**纯 PC 侧**、不引入任何 STM32 新外设 → 不算跳步。
+> ⏱ **但别为它单独重启**（`04` §0.3 规则①：Linux 侧任务 **<1h 不切换**）→ **并进你下一次进 Ubuntu 的大块时间**（W2 周六/周日），和"加 `publish_period` 参数 + launch + bag"一起做完。
+
+**③ 真合流（W6 起）在双系统下的固定流程 —— 这条必须提前知道**
+
+ROS2 只在 Ubuntu 跑 → **MCU 的 USB 必须插在 Ubuntu 侧**；而 Keil 烧写/调试在 Windows 侧。
+于是"改固件"和"看数据"分属两个系统 → **每次真合流都要重启一次**。省时间的做法：
+
+1. **Windows 侧**：把固件做成**上电即自动发帧**（不依赖调试器、不依赖断点）；
+2. **Windows 侧烧好 → 关机重启进 Ubuntu**（同一个串口不可能被两个系统同时占着）；
+3. **Ubuntu 侧**：`ls -l /dev/ttyUSB*` 确认名字 → `ros2 run uart_bridge uart_bridge_node --ros-args -p port:=/dev/ttyUSB0` → **看到 `/mcu/frame`/`/mcu/counter`**（这一步就是 W6 的验收）。
+
+> （可选替代：Ubuntu 里用 `st-flash`/OpenOCD 也能烧写 —— 但**违反"一次只引入一条新知识"**，W6 之前不折腾。）
+
 ---
 
 ## 4. 验收清单（W1 周日 R 线的 4 个产出）
