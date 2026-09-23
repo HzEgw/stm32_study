@@ -29,8 +29,8 @@ GPIO_Init(GPIOA,&GPIO_Struct_INIT);//这个函数是通过bsrr写如到的odr，
 TIM_TimeBaseInitTypeDef  TIM_Struct_Init;
 TIM_Struct_Init.TIM_ClockDivision= 0x0000;//这里应该说的是死区，但是我用的是普通定时器，死区暂时不考虑
 TIM_Struct_Init.TIM_CounterMode=TIM_CounterMode_Up;
-TIM_Struct_Init.TIM_Period=100;
-TIM_Struct_Init.TIM_Prescaler=720;//因为我的输入已经是确定了是rcc内部时钟，所以我这里生成的是1khz的pwm输出时钟
+TIM_Struct_Init.TIM_Period=99;
+TIM_Struct_Init.TIM_Prescaler=719;//因为我的输入已经是确定了是rcc内部时钟，所以我这里生成的是1khz的pwm输出时钟
 
 //写到这里，我意识到我好像没有选择输入源我忘记api是什么了，让我看看
 TIM_InternalClockConfig(TIM2);//选择内部的72mhz时钟，虽然写的顺序有点错误，但是足够醒目

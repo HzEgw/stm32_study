@@ -5,7 +5,8 @@ int main()
 {
 	pwm_init();
 	while(1){
-		
+	PWM_SetCompare3(25);
+	PWM_SetCompare4(75);
 for (uint16_t i = 0; i < 100; i++)
 {
    PWM_SetCompare2(i);
