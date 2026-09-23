@@ -117,6 +117,23 @@ mkdir -p ~/repos && cd ~/repos && git clone git@github.com:HzEgw/stm32_study.git
 
 ## 1. 一次性配置（约 5 分钟）
 
+### 1.0 ⚠️ 先对齐双系统时钟（做一次，否则时间会偏 8 小时 —— 2026-09-23 补）
+
+**症状**：从 Ubuntu 切回 Windows 后，**Windows 时间偏 +8 小时**（于是文件修改时间、编译日志全偏），"什么时候做的"就不可信了。
+**原因**：**Ubuntu 默认把硬件时钟 RTC 当 UTC 写回，Windows 默认把 RTC 当"本地时间"读** —— 同一个 RTC，两种解释。
+
+**治本（在 Ubuntu 里执行一次，推荐）**：
+```bash
+timedatectl set-local-rtc 1 --adjust-system-clock   # 让 RTC 存"本地时间" → Windows 不再跳
+timedatectl status                                  # 确认 "RTC in local TZ: yes"
+```
+**替代方案（在 Windows 里做）**：注册表 `HKLM\SYSTEM\CurrentControlSet\Control\TimeZoneInformation` 下把 `RealTimeIsUniversal` 设为 `1`（让 Windows 也按 UTC 读 RTC），重启生效。
+**临时办法（Windows）**：设置 → 时间和语言 → 「立即同步」；或管理员 PowerShell 执行 `w32tm /resync`。
+
+> **判据**：切回 Windows 后，Windows 时间与手机一致 = 对齐成功。
+> **规矩（`03` §1「时间证据分级」）**：**文件 mtime / 编译日志可能偏 8 小时** → 判断时间**一律以 git 提交时间为准**（服务端 `pushed_at`/`events` 可验证）。
+
+
 ### 1.1 git 身份
 
 ```bash
