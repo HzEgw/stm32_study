@@ -6,6 +6,5 @@ void PWM_SetCompare2(uint16_t Compare);
 void PWM_SetCompare3(uint16_t Compare);
 void PWM_SetCompare4(uint16_t Compare);
 void pwm_init();
-void delay_ms(uint32_t ms) ;
 
 #endif
