@@ -38,6 +38,7 @@
 | `10_对象包含关系与方法里new出来的内存归谁.md` | **对象的"包含"vs"引用"**：基类子对象与成员**内嵌**在同一块内存（实测偏移 0/32/64/72，`sizeof=88`）；**方法是代码、不占对象内存**；方法里 `new` = **另开一块独立内存**（堆里再开堆合法，但新块**不属于**调用者）；"即将回传的临时智能指针"**住在栈上**（实测 `0x7ffc…[stack]`，且工厂返回地址 == 调用方变量地址）；同一对象里 `shared_ptr` 成员 vs 裸指针成员的**两种结局**（实测一个死、一个漏） | 把问题问到了最精确的一句："堆区 a 调方法，方法里 `new`，那这块内存还属于 a 吗？node 销毁后 publish 还在吗？" |
 | `11_MCU上为什么怕malloc与new_从静态数组堆到FreeRTOS堆方案.md` | **MCU 版分配器**：PC 的堆能长大 vs MCU 的堆是**固定静态数组**（`ucHeap[]` + `configTOTAL_HEAP_SIZE`）→ **碎片化 = 分配失败**（实测 6 组：含**连 `heap_4` 合并也救不了的"夹心"碎片**）；FreeRTOS `heap_1~5` 对照表；为什么"时间不确定"比"失败"更可怕；固件正解：静态分配 / 对象池 / 环形缓冲 / `xTaskCreateStatic`；监控 `xPortGetMinimumEverFreeHeapSize` | `09` 写完"PC 分配器"后自然要问："STM32 上能不能也这么 `new`？" —— 直接接 W2 的 UART 环形缓冲与 W7 的 FreeRTOS |
 | `12_STL容器_map与unordered_map_哈希表.md` | **读源码前的必备词汇**：`map`（红黑树·有序·`O(log n)`）vs `unordered_map`（哈希表·无序·平均 `O(1)`）；哈希表四步（hash→桶→冲突→rehash）；`operator[]`/`at`/`try_emplace` 的区别（**实测 `m[key]` 会凭空插入**）；rehash 导致迭代器全失效；rclcpp 实例：`client.hpp:826-831` 的 `pending_requests_` | 2026-09-22 读 rclcpp 源码卡壳："**我对于哈希表和 map 其实不是很熟悉，我推测这也是我没有很快看明白源码的原因**" |
+| `13_自赋值与意图对照_编译器不会报的错.md` | **`x_ = x_;`（自赋值）编译器不会替你抓** —— 实测 GCC 11.4 `-Wall -Wextra -Wpedantic` **零警告**、`-Wself-assign` GCC 不认（Clang 才有）→ **"0 warning ≠ 逻辑正确"**；"意图↔代码"三问自检（①来源 ②同名 ③类型/单位）+「意图↔配置对照表」；同一模式的两次实例（09-23 `CH1`/`CCR2`、09-24 自赋值） | 2026-09-24 手写参数 demo 时，回调里想同步"新周期"却写成 `report_period_ms_ = report_period_ms_;`（22:36 已自行修正并重编 0 warning） |
 
 ---
 
