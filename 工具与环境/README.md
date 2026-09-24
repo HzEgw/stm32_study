@@ -24,6 +24,8 @@
 |---|---|
 | `01_git速查与工作流.md` | git 零基础速查：三个误区、日常四连、SSH 免密、443 被墙排障、Windows 配密钥的坑 |
 | `02_怎么查看ROS2与C++库的源码.md` | **"看不到源码"的解法**：VS Code 跳定义/全仓搜索、`grep`/`sed` 套路、GitHub 分支、`apt-get source`；**实战**：`create_publisher` 全链路（`node.hpp:195` → `create_publisher.hpp:46` → `publisher_factory.hpp:76` → `node_topics.hpp` 成员里没有发布者容器 → `callback_group.hpp` 全是 `WeakPtr`） |
+| `03_socat虚拟串口_pts编号每次都会变.md` | `socat` 造虚拟串口给 `uart_bridge` 灌假帧时踩的坑：**pts 编号每次启动都变**（唯一权威 = socat 打印的两行）、**桥开一头/你写另一头**、**"乱码 U" = 0x55 被当键盘输入灌进了某个终端**、`open()` 成功 ≠ 是串口；附 `link=` 固定软链法 + `/proc` 现场验号法 | 2026-09-24 跑通 `/mcu/frame` 时，因为照抄了示例编号 `5/6`（实际是 21/22）而卡了 10 分钟 |
+| `04_pgrep查不到进程_comm只留15字符.md` | **`comm` 只有 15 字符**（`TASK_COMM_LEN=16`）→ `uart_bridge_node`(16) 被截断成 `uart_bridge_nod` → `pgrep -x` 查不到 → `$(...)` 为空 → `ls: 无法访问 '/proc//fd/'`；正确写法 `pgrep -f`/`pgrep -a`/`ps -ef \| grep '[u]art...'` | 2026-09-24 查桥的串口时命令报错，一开始以为是命令写错 |
 
 ## 备注
 
