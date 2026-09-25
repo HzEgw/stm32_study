@@ -265,6 +265,8 @@ socat -d -d pty,raw,echo=0 pty,raw,echo=0
 source ~/ros2_ws/install/setup.bash
 ros2 run uart_bridge uart_bridge_node --ros-args -p port:=/dev/pts/6 -p baud:=115200
 #   日志应出现：串口已打开: /dev/pts/6 @ 115200 8N1
+#   等价的 launch 写法（`port`/`baud` 已在 launch 文件里声明为启动参数 ✅）：
+#   ros2 launch uart_bridge uart_bridge.launch.py port:=/dev/pts/6 baud:=115200
 ```
 ```bash
 # 终端 C：看话题
@@ -283,7 +285,8 @@ printf '\xAA\x55\x02\x00\x07\x09' > /dev/pts/5
 - `/mcu/counter` 打印 `data: 7`
 - **反证**：故意把 SUM 写错（`printf '\xAA\x55\x02\x00\x07\x08'`）→ **话题不动**，桥的日志里"校验错"计数 +1
 
-> ⚠️ **两个坑**：① `socat` 那个终端**不能关**（一关，两个 `/dev/pts/N` 就消失）；② `openPort()` 在节点**构造时**就调用（源码），所以**先起 `socat`、再起桥** —— 顺序倒了会看到"打开串口失败"，重启桥即可（源码里有 `retry_` 重试计数，但别赌它）。
+> ⚠️ **三个坑（前两个你 09-24 实测踩过）**：① `socat` 那个终端**不能关**（一关，两个 `/dev/pts/N` 就消失）；② **`/dev/pts/N` 的编号每次启动都会变**（实测是 **21/22** —— 示例里的 `5/6` 只是示意）→ **别照抄编号，先看 `socat` 打印的那两行再填**；③ `openPort()` 在节点**构造时**就调用（源码），所以**先起 `socat`、再起桥** —— 顺序倒了会看到"打开串口失败"，重启桥即可（源码里有 `retry_` 重试计数，但别赌它）。
+> 🔍 **症状速查（09-24 实测）**：**终端里突然飘出一串 `U`** ⇒ 你把帧写到**终端自己**那边的 pts 去了（`0x55` 正好是 ASCII 的 `'U'`）→ **把两个编号对调**再灌一次即可。
 > 📌 这是 **W2 的加餐**（`00` §16.8 v1.23 ②）：**纯 PC 侧**、不引入任何 STM32 新外设 → 不算跳步。
 > ⏱ **但别为它单独重启**（`04` §0.3 规则①：Linux 侧任务 **<1h 不切换**）→ **并进你下一次进 Ubuntu 的大块时间**（W2 周六/周日），和"加 `publish_period` 参数 + launch + bag"一起做完。
 

@@ -74,6 +74,7 @@ socat -d -d pty,raw,echo=0 pty,raw,echo=0     # 终端 A：记下打印的两个
 ```bash
 # 终端 B（先 socat 后起桥）：让桥去开"另一头"
 ros2 run uart_bridge uart_bridge_node --ros-args -p port:=/dev/pts/6
+#   等价 launch 写法：ros2 launch uart_bridge uart_bridge.launch.py port:=/dev/pts/6
 # 终端 C：ros2 topic echo /mcu/frame
 # 终端 D：往"你这一头"灌一帧 —— AA 55 | 02 | 00 07 | 09
 #         (LEN=2，SUM=(2+0+7)&0xFF=0x09)
